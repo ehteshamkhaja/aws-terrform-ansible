@@ -1,0 +1,60 @@
+- hosts: all
+  gather_facts: yes
+  become: yes
+  become_method: sudo
+  tasks:
+    # - name: Create a PV
+    #  parted:
+    #    device: /dev/xvdf
+    #    number: 1
+    #    flags: [ lvm ]
+    #    state: present
+    #    part_end: 2GB
+
+    - name: Create a Volume Group
+      community.general.lvg:
+        vg: testvg
+        pvs: /dev/xvdf
+        pesize: 90G
+
+
+    - name: Create a logical volume of 512m
+      community.general.lvol:
+        vg: testvg
+        lv: testlv
+        size: 82G
+    
+    - name: Create a directory /test
+      file:
+        path: /test
+        state: directory
+      become: yes
+      become_method: sudo
+
+    - name: Fetch the UUID for LV partition
+      command: blkid -s UUID -o value /dev/xvdf
+      changed_when: false
+      register: blkid_out
+
+    - name: Format the partition to xfs
+      command: sudo mkfs.ext4 /dev/testvg/testlv
+      become: yes
+      become_method: sudo
+
+
+    - name: Add the entry to fstab
+      command: echo 'UUID={{ blkid_out.stdout }} /test ext4 defaults 0 0' >> /etc/fstab
+      become: yes
+      become_method: sudo
+      become_user: root
+
+    - name: Mount the LV on the /test
+      mount:
+        path: /test
+        src: /dev/testvg/testlv
+        fstype: ext4
+        state: mounted
+      become: yes
+      become_method: sudo
+      become_user: root
+    
