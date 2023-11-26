@@ -18,6 +18,7 @@ resource "aws_instance" "web" {
   ami           = "ami-0fc5d935ebf8bc3bc"
   instance_type = "t2.micro"
   key_name      = "tf-key-pair-${random_id.server.hex}"
+  availability_zone = "us-east-1c"
   depends_on = [
     aws_key_pair.tf-key-pair,
     aws_ebs_volume.example
