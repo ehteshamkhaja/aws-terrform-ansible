@@ -1,0 +1,3 @@
+hostname: 54.85.4.193
+http_port: 80
+mountpath: /test
