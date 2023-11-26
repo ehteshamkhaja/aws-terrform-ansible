@@ -1,0 +1,13 @@
+<VirtualHost *:{{ http_port }}>
+
+    <Directory /test>
+        Options -Indexes +FollowSymLinks +MultiViews
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+	ServerAdmin webmaster@localhost
+        ServerName {{ hostname }}
+	DocumentRoot {{ mountpath }}
+
+</VirtualHost>
