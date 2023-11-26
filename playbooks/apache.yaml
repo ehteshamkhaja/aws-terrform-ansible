@@ -1,0 +1,37 @@
+- name: Ansible Playbook to Install and Setup Apache on Ubuntu
+  hosts: all
+  become: yes
+  become_method: sudo
+  vars_files:
+    - "vars/variables.var"
+  tasks:
+
+    - name: Install latest version of Apache
+      apt:
+        name: apache2
+        state: latest
+        update_cache: yes
+      become: yes
+      become_method: sudo
+      become_user: root
+ 
+    - name: Copy your index file
+      template:
+        src: "files/documentroot"
+        dest: "/etc/apache2/sites-available/"
+      become: yes
+      become_user: root
+
+    - name: delete the default file
+      command: rm -rf 000-default.conf
+
+    - name: setting new webpage as default
+      command: mv /etc/apache2/sites-available/documentroot /etc/apache2/sites-available/000-default.conf     
+      become_user: root
+
+    - name: restart-apache
+      service:
+        name: apache2
+        state: restarted
+      become: yes
+      become_user: root
